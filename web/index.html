@@ -100,7 +100,7 @@
 
     <section class="card">
       <div class="flex" style="justify-content:space-between;">
-        <h2 style="margin:0;">Today</h2>
+        <h2 id="entriesHeader" style="margin:0;">Entries (last 30 days)</h2>
         <div class="flex">
           <button id="refreshBtn">Refresh</button>
           <button id="exportBtn">Export CSV</button>
@@ -305,6 +305,12 @@
     const historyRangeEl = document.getElementById('historyRange');
     const historyListEl = document.getElementById('historyList');
 
+    function updateEntriesHeader() {
+      const days = parseInt(historyRangeEl.value || '30', 10);
+      const h = document.getElementById('entriesHeader');
+      if (h) h.textContent = `Entries (last ${days} days)`;
+    }
+
     async function loadHistory() {
       const days = parseInt(historyRangeEl.value || '30', 10);
       const now = new Date();
@@ -366,7 +372,11 @@
     }
 
     // Hook range changes
-    historyRangeEl.addEventListener('change', loadHistory);
+    historyRangeEl.addEventListener('change', () => {
+      updateEntriesHeader();
+      loadHistory();
+      refresh();
+    });
 
     function loadPending() {
       try {
@@ -533,6 +543,7 @@
 
     refresh();
     loadHistory();
+    updateEntriesHeader();
   </script>
 </body>
 </html>
