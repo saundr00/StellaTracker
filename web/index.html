@@ -37,12 +37,7 @@
   <main>
     <section class="card">
       <h2 style="margin:0 0 8px 0;">Quick Presets</h2>
-      <div class="flex" id="presets">
-        <button class="preset" data-metric="stand_unassisted" data-value="+1" data-note="">+1 Stand (Unassisted)</button>
-        <button class="preset" data-metric="walk_inside_unassisted" data-value="+1" data-note="">+1 Walk Inside (Unassisted)</button>
-        <button class="preset" data-metric="panting" data-value="+1" data-note="">+1 Panting</button>
-        <button class="preset" data-metric="drink" data-value="+1" data-note="">+1 Drink Water</button>
-      </div>
+      <div class="flex" id="presets"></div>
     </section>
 
     <section class="card">
@@ -51,31 +46,7 @@
         <div class="row">
           <div>
             <label for="metric">Metric</label>
-            <select id="metric">
-              <option value="stand_assisted">Stand (Assisted)</option>
-              <option value="stand_unassisted">Stand (Unassisted)</option>
-              <option value="drink">Drink Water</option>
-              <option value="eat">Eat</option>
-              <option value="panting">Panting Episode</option>
-              <option value="tylenol">Tylenol Given</option>
-              <option value="bm_normal">BM (Normal)</option>
-              <option value="bm_loose">BM (Loose)</option>
-              <option value="bm_diarrhea">BM (Diarrhea)</option>
-              <option value="bm_accident">BM Accident</option>
-              <option value="urinate_normal">Urinate (Normal)</option>
-              <option value="urinate_accident">Urinate Accident</option>
-              <option value="assisi_session">Assisi Loop Session</option>
-              <option value="walk_inside_assisted">Walk: Inside (Assisted)</option>
-              <option value="walk_inside_unassisted">Walk: Inside (Unassisted)</option>
-              <option value="walk_circle">Walk: To Circle</option>
-              <option value="walk_little_loop">Walk: Little Loop</option>
-              <option value="walk_front_yard">Walk: Front Yard</option>
-              <option value="walk_back_yard">Walk: Back Yard</option>
-              <option value="walk_other">Walk: Other</option>
-              <option value="energy">Energy Level (0-5)</option>
-              <option value="pain_flag">Pain Flag</option>
-              <option value="notes">Notes</option>
-            </select>
+            <select id="metric"></select>
           </div>
           <div>
             <label for="value">Value</label>
@@ -163,17 +134,140 @@
       const local = new Date(now.getTime() - tzOffset*60000);
       tsEl.value = local.toISOString().slice(0,16);
     }
+
+    // --- Dynamic config (external) ---
+    /**
+     * Expected /config.json schema:
+     * {
+     *   "metrics": [
+     *     { "id": "stand_assisted", "label": "Stand (Assisted)" },
+     *     { "id": "stand_unassisted", "label": "Stand (Unassisted)" },
+     *     { "id": "drink", "label": "Drink Water" },
+     *     { "id": "eat", "label": "Eat" },
+     *     { "id": "panting", "label": "Panting Episode" },
+     *     { "id": "tylenol", "label": "Tylenol Given" },
+     *     { "id": "bm_normal", "label": "BM (Normal)" },
+     *     { "id": "bm_loose", "label": "BM (Loose)" },
+     *     { "id": "bm_diarrhea", "label": "BM (Diarrhea)" },
+     *     { "id": "bm_accident", "label": "BM Accident", "showAccidentExtras": true },
+     *     { "id": "urinate_normal", "label": "Urinate (Normal)" },
+     *     { "id": "urinate_accident", "label": "Urinate Accident", "showAccidentExtras": true },
+     *     { "id": "assisi_session", "label": "Assisi Loop Session" },
+     *     { "id": "walk_inside_assisted", "label": "Walk: Inside (Assisted)" },
+     *     { "id": "walk_inside_unassisted", "label": "Walk: Inside (Unassisted)" },
+     *     { "id": "walk_circle", "label": "Walk: To Circle" },
+     *     { "id": "walk_little_loop", "label": "Walk: Little Loop" },
+     *     { "id": "walk_front_yard", "label": "Walk: Front Yard" },
+     *     { "id": "walk_back_yard", "label": "Walk: Back Yard" },
+     *     { "id": "walk_other", "label": "Walk: Other" },
+     *     { "id": "energy", "label": "Energy Level (0-5)", "energyScale": { "min": 0, "max": 5, "step": 1, "default": 3 } },
+     *     { "id": "pain_flag", "label": "Pain Flag" },
+     *     { "id": "notes", "label": "Notes" }
+     *   ],
+     *   "presets": [
+     *     { "label": "+1 Stand (Unassisted)",       "metric": "stand_unassisted",      "value": "+1", "note": "" },
+     *     { "label": "+1 Walk Inside (Unassisted)", "metric": "walk_inside_unassisted", "value": "+1", "note": "" },
+     *     { "label": "+1 Panting",                   "metric": "panting",               "value": "+1", "note": "" },
+     *     { "label": "+1 Drink Water",               "metric": "drink",                 "value": "+1", "note": "" }
+     *   ]
+     * }
+     */
+    let CONFIG = null;
+    let metricMap = new Map();
+
+    async function loadConfig() {
+      try {
+        const res = await fetch('/config.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Config fetch failed');
+        CONFIG = await res.json();
+      } catch (err) {
+        console.warn('Falling back to built-in defaults because /config.json was not found or failed to load.', err);
+        CONFIG = {
+          metrics: [
+            { id: 'stand_assisted', label: 'Stand (Assisted)' },
+            { id: 'stand_unassisted', label: 'Stand (Unassisted)' },
+            { id: 'drink', label: 'Drink Water' },
+            { id: 'eat', label: 'Eat' },
+            { id: 'panting', label: 'Panting Episode' },
+            { id: 'tylenol', label: 'Tylenol Given' },
+            { id: 'bm_normal', label: 'BM (Normal)' },
+            { id: 'bm_loose', label: 'BM (Loose)' },
+            { id: 'bm_diarrhea', label: 'BM (Diarrhea)' },
+            { id: 'bm_accident', label: 'BM Accident', showAccidentExtras: true },
+            { id: 'urinate_normal', label: 'Urinate (Normal)' },
+            { id: 'urinate_accident', label: 'Urinate Accident', showAccidentExtras: true },
+            { id: 'assisi_session', label: 'Assisi Loop Session' },
+            { id: 'walk_inside_assisted', label: 'Walk: Inside (Assisted)' },
+            { id: 'walk_inside_unassisted', label: 'Walk: Inside (Unassisted)' },
+            { id: 'walk_circle', label: 'Walk: To Circle' },
+            { id: 'walk_little_loop', label: 'Walk: Little Loop' },
+            { id: 'walk_front_yard', label: 'Walk: Front Yard' },
+            { id: 'walk_back_yard', label: 'Walk: Back Yard' },
+            { id: 'walk_other', label: 'Walk: Other' },
+            { id: 'energy', label: 'Energy Level (0-5)', energyScale: { min: 0, max: 5, step: 1, default: 3 } },
+            { id: 'pain_flag', label: 'Pain Flag' },
+            { id: 'notes', label: 'Notes' }
+          ],
+          presets: [
+            { label: '+1 Stand (Unassisted)',       metric: 'stand_unassisted',      value: '+1', note: '' },
+            { label: '+1 Walk Inside (Unassisted)', metric: 'walk_inside_unassisted', value: '+1', note: '' },
+            { label: '+1 Panting',                   metric: 'panting',               value: '+1', note: '' },
+            { label: '+1 Drink Water',               metric: 'drink',                 value: '+1', note: '' }
+          ]
+        };
+      }
+      metricMap = new Map(CONFIG.metrics.map(m => [m.id, m]));
+      buildMetricSelect();
+      buildPresets();
+      onMetricChange();
+    }
+
+    function buildMetricSelect() {
+      metricEl.innerHTML = '';
+      for (const m of CONFIG.metrics) {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.label;
+        metricEl.appendChild(opt);
+      }
+    }
+
+    function buildPresets() {
+      presetsEl.innerHTML = '';
+      for (const p of (CONFIG.presets || [])) {
+        const btn = document.createElement('button');
+        btn.className = 'preset';
+        btn.dataset.metric = p.metric;
+        if (p.value != null) btn.dataset.value = String(p.value);
+        if (p.note != null) btn.dataset.note = String(p.note);
+        btn.textContent = p.label;
+        presetsEl.appendChild(btn);
+      }
+    }
+
     setNow();
+    loadConfig();
 
     metricEl.addEventListener("change", onMetricChange);
     function onMetricChange() {
-      const m = metricEl.value;
-      const accident = m === "bm_accident" || m === "urine_accident";
-      accidentRow.style.display = accident ? "" : "none";
-      energyRow.style.display = m === "energy" ? "" : "none";
-      if (m === "energy" && !valueEl.value) valueEl.value = "3";
+      const id = metricEl.value;
+      const def = metricMap.get(id) || {};
+      // Accident-specific extras come from config
+      accidentRow.style.display = def.showAccidentExtras ? '' : 'none';
+      // Energy slider driven by config
+      if (def.energyScale) {
+        energyRow.style.display = '';
+        energySlider.min = def.energyScale.min ?? 0;
+        energySlider.max = def.energyScale.max ?? 5;
+        energySlider.step = def.energyScale.step ?? 1;
+        if (!valueEl.value) {
+          energySlider.value = String(def.energyScale.default ?? 3);
+          valueEl.value = String(def.energyScale.default ?? 3);
+        }
+      } else {
+        energyRow.style.display = 'none';
+      }
     }
-    onMetricChange();
 
     presetsEl.addEventListener("click", (e) => {
       const btn = e.target.closest("button.preset");
@@ -229,17 +323,18 @@
 
     async function saveEntry() {
       const metric = metricEl.value;
-      let value = valueEl.value || "";
+      let value = valueEl.value || '';
       const noteParts = [];
-      if (metric === "energy") {
+      const def = metricMap.get(metric) || {};
+      if (def.energyScale) {
         value = energySlider.value;
       }
-      if (metric === "bm_accident" || metric === "urine_accident") {
+      if (def.showAccidentExtras) {
         if (locationEl.value) noteParts.push(`location:${locationEl.value}`);
         if (severityEl.value) noteParts.push(`size:${severityEl.value}`);
       }
-      const extra = noteParts.join(" ");
-      const note = [noteEl.value || "", extra].filter(Boolean).join(" ").trim();
+      const extra = noteParts.join(' ');
+      const note = [noteEl.value || '', extra].filter(Boolean).join(' ').trim();
       const localIso = new Date(tsEl.value).toISOString();
       const body = { metric, value, note, ts: localIso };
 

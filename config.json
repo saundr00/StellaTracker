@@ -1,0 +1,33 @@
+{
+  "metrics": [
+    { "id": "stand_assisted", "label": "Stand (Assisted)" },
+    { "id": "stand_unassisted", "label": "Stand (Unassisted)" },
+    { "id": "drink", "label": "Drink Water" },
+    { "id": "eat", "label": "Eat" },
+    { "id": "panting", "label": "Panting Episode" },
+    { "id": "tylenol", "label": "Tylenol Given" },
+    { "id": "bm_normal", "label": "BM (Normal)" },
+    { "id": "bm_loose", "label": "BM (Loose)" },
+    { "id": "bm_diarrhea", "label": "BM (Diarrhea)" },
+    { "id": "bm_accident", "label": "BM Accident", "showAccidentExtras": true },
+    { "id": "urinate_normal", "label": "Urinate (Normal)" },
+    { "id": "urinate_accident", "label": "Urinate Accident", "showAccidentExtras": true },
+    { "id": "assisi_session", "label": "Assisi Loop Session" },
+    { "id": "walk_inside_assisted", "label": "Walk: Inside (Assisted)" },
+    { "id": "walk_inside_unassisted", "label": "Walk: Inside (Unassisted)" },
+    { "id": "walk_circle", "label": "Walk: To Circle" },
+    { "id": "walk_little_loop", "label": "Walk: Little Loop" },
+    { "id": "walk_front_yard", "label": "Walk: Front Yard" },
+    { "id": "walk_back_yard", "label": "Walk: Back Yard" },
+    { "id": "walk_other", "label": "Walk: Other" },
+    { "id": "energy", "label": "Energy Level (0-5)", "energyScale": { "min": 0, "max": 5, "step": 1, "default": 3 } },
+    { "id": "pain_flag", "label": "Pain Flag" },
+    { "id": "notes", "label": "Notes" }
+  ],
+  "presets": [
+    { "label": "+1 Stand (Unassisted)", "metric": "stand_unassisted", "value": "+1", "note": "" },
+    { "label": "+1 Walk Inside (Unassisted)", "metric": "walk_inside_unassisted", "value": "+1", "note": "" },
+    { "label": "+1 Panting", "metric": "panting", "value": "+1", "note": "" },
+    { "label": "+1 Drink Water", "metric": "drink", "value": "+1", "note": "" }
+  ]
+}
