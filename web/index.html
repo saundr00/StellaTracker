@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StellaTracker</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 0; background: #fafafa; color: #111; }
+    header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #eee; padding: 12px 16px; display:flex; gap:12px; align-items:center; }
+    header img { width: 28px; height: 28px; border-radius: 6px; background:#ddd; }
+    h1 { font-size: 18px; margin: 0; }
+    main { padding: 16px; display:grid; gap: 16px; max-width: 900px; margin: 0 auto; }
+    .card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    label { font-size: 14px; display:block; margin: 6px 0; }
+    input, select, textarea, button { font-size: 16px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; background:#fff;}
+    button { cursor: pointer; border-color: #ccc; }
+    .grid { display:grid; gap:8px; }
+    .muted { color:#666; font-size:12px; }
+    .entries { display:grid; gap:8px; }
+    .entry { padding:10px; border:1px solid #eee; border-radius:8px; background:#fff; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#efefef; margin-right:6px; }
+    .flex { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+    .space { height:4px; }
+    .danger { color:#b00020; }
+    .iconbtn { border: none; background: transparent; cursor: pointer; font-size: 16px; padding: 4px 6px; }
+    .preset { padding:8px 10px; border:1px solid #ddd; border-radius:999px; background:#f7f7f7; }
+  </style>
+</head>
+<body>
+  <header>
+    <img alt="logo" />
+    <h1>StellaTracker</h1>
+  </header>
+  <main>
+    <section class="card">
+      <h2 style="margin:0 0 8px 0;">Quick Presets</h2>
+      <div class="flex" id="presets">
+        <button class="preset" data-metric="panting" data-value="+1" data-note="">+1 Panting</button>
+        <button class="preset" data-metric="tylenol" data-value="250mg" data-note="">Tylenol 250mg</button>
+        <button class="preset" data-metric="assisi_session" data-value="hip 15min" data-note="">Assisi Hip 15m</button>
+        <button class="preset" data-metric="walk_circle" data-value="0.15mi" data-note="">Walk: Circle 0.15mi</button>
+        <button class="preset" data-metric="urine_accident" data-value="bed" data-note="accident location: bed">Urine Accident (bed)</button>
+        <button class="preset" data-metric="bm_accident" data-value="bed" data-note="accident location: bed">BM Accident (bed)</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin:0 0 8px 0;">Quick Log</h2>
+      <div class="grid">
+        <div class="row">
+          <div>
+            <label for="metric">Metric</label>
+            <select id="metric">
+              <option value="assisted_stand">Assisted Stand</option>
+              <option value="unassisted_stand">Unassisted Stand</option>
+              <option value="panting">Panting Episode</option>
+              <option value="tylenol">Tylenol Given</option>
+              <option value="bm_normal">BM (Normal)</option>
+              <option value="bm_loose">BM (Loose)</option>
+              <option value="bm_diarrhea">BM (Diarrhea)</option>
+              <option value="bm_accident">BM Accident</option>
+              <option value="urine_accident">Urine Accident</option>
+              <option value="assisi_session">Assisi Loop Session</option>
+              <option value="walk_circle">Walk: To Circle</option>
+              <option value="walk_other">Walk: Other</option>
+              <option value="energy">Energy Level (0-5)</option>
+              <option value="pain_flag">Pain Flag</option>
+            </select>
+          </div>
+          <div>
+            <label for="value">Value</label>
+            <input id="value" placeholder="e.g., duration 10min, dose 250mg, distance 0.1mi…" />
+          </div>
+        </div>
+
+        <div class="row" id="accidentRow" style="display:none;">
+          <div>
+            <label for="location">Accident Location</label>
+            <select id="location">
+              <option value="">(none)</option>
+              <option value="bed">Bed</option>
+              <option value="couch">Couch</option>
+              <option value="deck">Deck</option>
+              <option value="yard">Yard</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="severity">Severity/Size (optional)</label>
+            <input id="severity" placeholder="e.g., small/medium/large" />
+          </div>
+        </div>
+
+        <div id="energyRow" style="display:none;">
+          <label for="energy">Energy Level</label>
+          <input id="energy" type="range" min="0" max="5" step="1" value="3">
+        </div>
+
+        <label for="note">Note (optional)</label>
+        <textarea id="note" rows="2" placeholder="Short note…"></textarea>
+        <div class="row">
+          <div>
+            <label for="ts">Time</label>
+            <input id="ts" type="datetime-local" />
+          </div>
+          <div style="display:flex; align-items:flex-end; gap:8px;">
+            <button id="saveBtn">Save Entry</button>
+            <button id="flushBtn">Sync Pending</button>
+          </div>
+        </div>
+        <div class="muted">Works offline. If the network fails, entries are queued and will sync when you tap <b>Sync Pending</b> or come back online.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="flex" style="justify-content:space-between;">
+        <h2 style="margin:0;">Today</h2>
+        <div class="flex">
+          <button id="refreshBtn">Refresh</button>
+          <button id="exportBtn">Export CSV</button>
+        </div>
+      </div>
+      <div id="todayCounts" class="grid muted"></div>
+      <div class="space"></div>
+      <div id="entries" class="entries"></div>
+    </section>
+  </main>
+
+  <script>
+    const apiBase = "/api"; // SWA managed functions
+    const pendingKey = "st_pending_entries";
+
+    const metricEl = document.getElementById("metric");
+    const valueEl = document.getElementById("value");
+    const noteEl = document.getElementById("note");
+    const tsEl = document.getElementById("ts");
+    const entriesEl = document.getElementById("entries");
+    const todayCountsEl = document.getElementById("todayCounts");
+    const saveBtn = document.getElementById("saveBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const flushBtn = document.getElementById("flushBtn");
+    const presetsEl = document.getElementById("presets");
+    const accidentRow = document.getElementById("accidentRow");
+    const energyRow = document.getElementById("energyRow");
+    const energySlider = document.getElementById("energy");
+    const locationEl = document.getElementById("location");
+    const severityEl = document.getElementById("severity");
+
+    function setNow() {
+      const now = new Date();
+      const tzOffset = now.getTimezoneOffset();
+      const local = new Date(now.getTime() - tzOffset*60000);
+      tsEl.value = local.toISOString().slice(0,16);
+    }
+    setNow();
+
+    metricEl.addEventListener("change", onMetricChange);
+    function onMetricChange() {
+      const m = metricEl.value;
+      const accident = m === "bm_accident" || m === "urine_accident";
+      accidentRow.style.display = accident ? "" : "none";
+      energyRow.style.display = m === "energy" ? "" : "none";
+      if (m === "energy" && !valueEl.value) valueEl.value = "3";
+    }
+    onMetricChange();
+
+    presetsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("button.preset");
+      if (!btn) return;
+      metricEl.value = btn.dataset.metric;
+      valueEl.value = btn.dataset.value || "";
+      noteEl.value = btn.dataset.note || "";
+      onMetricChange();
+      saveEntry();
+    });
+
+    function fmtDate(s) {
+      const d = new Date(s);
+      return d.toLocaleString();
+    }
+    function pill(label) {
+      const span = document.createElement("span");
+      span.className = "pill";
+      span.textContent = label;
+      return span;
+    }
+
+    function loadPending() {
+      try {
+        return JSON.parse(localStorage.getItem(pendingKey) || "[]");
+      } catch { return []; }
+    }
+    function savePending(arr) {
+      localStorage.setItem(pendingKey, JSON.stringify(arr));
+    }
+    async function flushPending() {
+      const queue = loadPending();
+      if (!queue.length) return;
+      const remain = [];
+      for (const body of queue) {
+        try {
+          const res = await fetch(`${apiBase}/entry`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          if (!res.ok) throw new Error("fail");
+        } catch {
+          remain.push(body);
+        }
+      }
+      savePending(remain);
+      await refresh();
+      alert(remain.length ? `Synced ${queue.length - remain.length}, ${remain.length} left` : `All pending entries synced`);
+    }
+    window.addEventListener("online", flushPending);
+    setInterval(flushPending, 30000);
+
+    async function saveEntry() {
+      const metric = metricEl.value;
+      let value = valueEl.value || "";
+      const noteParts = [];
+      if (metric === "energy") {
+        value = energySlider.value;
+      }
+      if (metric === "bm_accident" || metric === "urine_accident") {
+        if (locationEl.value) noteParts.push(`location:${locationEl.value}`);
+        if (severityEl.value) noteParts.push(`size:${severityEl.value}`);
+      }
+      const extra = noteParts.join(" ");
+      const note = [noteEl.value || "", extra].filter(Boolean).join(" ").trim();
+      const localIso = new Date(tsEl.value).toISOString();
+      const body = { metric, value, note, ts: localIso };
+
+      try {
+        const res = await fetch(`${apiBase}/entry`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error("save failed");
+      } catch {
+        // queue offline
+        const q = loadPending();
+        q.push(body);
+        savePending(q);
+      }
+      valueEl.value = "";
+      noteEl.value = "";
+      locationEl.value = "";
+      severityEl.value = "";
+      setNow();
+      await refresh();
+    }
+
+    async function deleteEntry(partitionKey, rowKey) {
+      if (!confirm("Delete this entry?")) return;
+      const res = await fetch(`${apiBase}/entry/${encodeURIComponent(partitionKey)}/${encodeURIComponent(rowKey)}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) {
+        alert("Failed to delete.");
+        return;
+      }
+      await refresh();
+    }
+
+    function summarizeToday(entries) {
+      const start = new Date(); start.setHours(0,0,0,0);
+      const end = new Date(); end.setHours(23,59,59,999);
+      const today = entries.filter(e => {
+        const t = new Date(e.ts);
+        return t >= start && t <= end;
+      });
+      const counts = {};
+      for (const e of today) {
+        counts[e.metric] = (counts[e.metric] || 0) + 1;
+      }
+      todayCountsEl.innerHTML = "";
+      const keys = Object.keys(counts).sort();
+      if (keys.length === 0) {
+        const div = document.createElement("div");
+        div.textContent = "No entries yet today.";
+        todayCountsEl.appendChild(div);
+      } else {
+        for (const k of keys) {
+          const div = document.createElement("div");
+          div.textContent = `${k}: ${counts[k]}`;
+          todayCountsEl.appendChild(div);
+        }
+      }
+    }
+
+    async function refresh() {
+      const params = new URLSearchParams();
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+      params.set("from", start.toISOString());
+      params.set("to", now.toISOString());
+      const res = await fetch(`${apiBase}/entries?${params.toString()}`);
+      if (!res.ok) { entriesEl.innerHTML = "<div class='muted'>Failed to load.</div>"; return; }
+      const data = await res.json();
+      entriesEl.innerHTML = "";
+      summarizeToday(data.items || []);
+      (data.items || []).sort((a,b) => a.ts > b.ts ? -1 : 1).forEach(e => {
+        const div = document.createElement("div");
+        div.className = "entry";
+        const h = document.createElement("div");
+        h.appendChild(pill(e.metric));
+        if (e.value) h.appendChild(pill(e.value));
+        div.appendChild(h);
+        const t = document.createElement("div");
+        t.className = "muted";
+        t.textContent = fmtDate(e.ts);
+        div.appendChild(t);
+        if (e.note) {
+          const n = document.createElement("div");
+          n.textContent = e.note;
+          div.appendChild(n);
+        }
+        const actions = document.createElement("div");
+        actions.className = "flex";
+        const del = document.createElement("button");
+        del.className = "iconbtn danger";
+        del.textContent = "Delete";
+        del.addEventListener("click", () => deleteEntry(e.partitionKey, e.id));
+        actions.appendChild(del);
+        div.appendChild(actions);
+        entriesEl.appendChild(div);
+      });
+    }
+
+    saveBtn.addEventListener("click", saveEntry);
+    refreshBtn.addEventListener("click", refresh);
+    exportBtn.addEventListener("click", async () => {
+      const res = await fetch(`${apiBase}/export?days=30`);
+      if (!res.ok) { alert("Failed to export"); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "stella_export.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+    flushBtn.addEventListener("click", flushPending);
+
+    refresh();
+  </script>
+</body>
+</html>
