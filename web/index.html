@@ -38,12 +38,10 @@
     <section class="card">
       <h2 style="margin:0 0 8px 0;">Quick Presets</h2>
       <div class="flex" id="presets">
+        <button class="preset" data-metric="stand_unassisted" data-value="+1" data-note="">+1 Stand (Unassisted)</button>
+        <button class="preset" data-metric="walk_inside_unassisted" data-value="+1" data-note="">+1 Walk Inside (Unassisted)</button>
         <button class="preset" data-metric="panting" data-value="+1" data-note="">+1 Panting</button>
-        <button class="preset" data-metric="tylenol" data-value="250mg" data-note="">Tylenol 250mg</button>
-        <button class="preset" data-metric="assisi_session" data-value="hip 15min" data-note="">Assisi Hip 15m</button>
-        <button class="preset" data-metric="walk_circle" data-value="0.15mi" data-note="">Walk: Circle 0.15mi</button>
-        <button class="preset" data-metric="urine_accident" data-value="bed" data-note="accident location: bed">Urine Accident (bed)</button>
-        <button class="preset" data-metric="bm_accident" data-value="bed" data-note="accident location: bed">BM Accident (bed)</button>
+        <button class="preset" data-metric="drink" data-value="+1" data-note="">+1 Drink Water</button>
       </div>
     </section>
 
@@ -54,8 +52,8 @@
           <div>
             <label for="metric">Metric</label>
             <select id="metric">
-              <option value="assisted_stand">Assisted Stand</option>
-              <option value="unassisted_stand">Unassisted Stand</option>
+              <option value="stand_assisted">Stand (Assisted)</option>
+              <option value="stand_unassisted">Stand (Unassisted)</option>
               <option value="drink">Drink Water</option>
               <option value="eat">Eat</option>
               <option value="panting">Panting Episode</option>
