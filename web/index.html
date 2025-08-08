@@ -32,6 +32,9 @@
     .spark { color:#333; }
     .spark svg { display:block; width:100%; height:28px; }
     .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; text-align:right; }
+    .subhead { font-size: 13px; font-weight: 600; color:#333; margin:8px 0 4px; }
+    .rule { border-top:1px solid #eee; margin:12px 0; }
+    .softcard { background:#fafafa; border:1px solid #eee; border-radius:8px; padding:8px; }
   </style>
 </head>
 <body>
@@ -112,14 +115,21 @@
 
     <section class="card">
       <div class="flex" style="justify-content:space-between;">
-        <h2 id="entriesHeader" style="margin:0;">Entries (last 30 days)</h2>
+        <h2 style="margin:0;">Entries</h2>
         <div class="flex">
           <button id="refreshBtn">Refresh</button>
           <button id="exportBtn">Export CSV</button>
         </div>
       </div>
-      <div id="todayCounts" class="grid muted"></div>
-      <div class="space"></div>
+
+      <div class="softcard">
+        <div class="subhead">Summary (today)</div>
+        <div id="todayCounts" class="grid muted"></div>
+      </div>
+
+      <div class="rule"></div>
+
+      <div class="subhead" id="detailHeader">Detail (last 30 days)</div>
       <div id="entries" class="entries"></div>
     </section>
   </main>
@@ -307,8 +317,10 @@
 
     function updateEntriesHeader() {
       const days = parseInt(historyRangeEl.value || '30', 10);
-      const h = document.getElementById('entriesHeader');
-      if (h) h.textContent = `Entries (last ${days} days)`;
+      const h2 = document.getElementById('entriesHeader');
+      if (h2) h2.textContent = `Entries (last ${days} days)`; // legacy, if present
+      const d = document.getElementById('detailHeader');
+      if (d) d.textContent = `Detail (last ${days} days)`;
     }
 
     async function loadHistory() {
