@@ -99,6 +99,18 @@
     </section>
 
     <section class="card">
+      <div class="flex" style="justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">History</h2>
+        <select id="historyRange">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </div>
+      <div id="historyList" class="grid"></div>
+    </section>
+
+    <section class="card">
       <div class="flex" style="justify-content:space-between;">
         <h2 id="entriesHeader" style="margin:0;">Entries (last 30 days)</h2>
         <div class="flex">
@@ -109,18 +121,6 @@
       <div id="todayCounts" class="grid muted"></div>
       <div class="space"></div>
       <div id="entries" class="entries"></div>
-    </section>
-
-    <section class="card">
-      <div class="flex" style="justify-content:space-between; align-items:center;">
-        <h2 style="margin:0;">History</h2>
-        <select id="historyRange">
-          <option value="7">Last 7 days</option>
-          <option value="30" selected>Last 30 days</option>
-          <option value="90">Last 90 days</option>
-        </select>
-      </div>
-      <div id="historyList" class="grid"></div>
     </section>
   </main>
 
@@ -488,7 +488,8 @@
     async function refresh() {
       const params = new URLSearchParams();
       const now = new Date();
-      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+      const days = parseInt(historyRangeEl.value || '30', 10);
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days);
       params.set("from", start.toISOString());
       params.set("to", now.toISOString());
       const res = await fetch(`${apiBase}/entries?${params.toString()}`);
@@ -527,7 +528,8 @@
     saveBtn.addEventListener("click", saveEntry);
     refreshBtn.addEventListener("click", refresh);
     exportBtn.addEventListener("click", async () => {
-      const res = await fetch(`${apiBase}/export?days=30`);
+      const days = parseInt(historyRangeEl.value || '30', 10);
+      const res = await fetch(`${apiBase}/export?days=${encodeURIComponent(days)}`);
       if (!res.ok) { alert("Failed to export"); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
