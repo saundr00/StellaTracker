@@ -27,6 +27,11 @@
     .danger { color:#b00020; }
     .iconbtn { border: none; background: transparent; cursor: pointer; font-size: 16px; padding: 4px 6px; }
     .preset { padding:8px 10px; border:1px solid #ddd; border-radius:999px; background:#f7f7f7; }
+    .history-row { display:grid; grid-template-columns: 200px 1fr 80px; gap:8px; align-items:center; }
+    .history-row h3 { margin:0; font-size:14px; font-weight:600; }
+    .spark { color:#333; }
+    .spark svg { display:block; width:100%; height:28px; }
+    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; text-align:right; }
   </style>
 </head>
 <body>
@@ -104,6 +109,18 @@
       <div id="todayCounts" class="grid muted"></div>
       <div class="space"></div>
       <div id="entries" class="entries"></div>
+    </section>
+
+    <section class="card">
+      <div class="flex" style="justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">History</h2>
+        <select id="historyRange">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </div>
+      <div id="historyList" class="grid"></div>
     </section>
   </main>
 
@@ -237,6 +254,119 @@
       span.textContent = label;
       return span;
     }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // History helpers: rollups and sparklines
+    function isoDay(d) { return d.toISOString().slice(0,10); }
+    function daysArray(n) {
+      const out = [];
+      const now = new Date();
+      const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      for (let i = n - 1; i >= 0; i--) {
+        const dt = new Date(end); dt.setUTCDate(end.getUTCDate() - i);
+        out.push(isoDay(dt));
+      }
+      return out; // array of YYYY-MM-DD
+    }
+
+    function rollupCountsByDay(items) {
+      const byDay = new Map();
+      for (const e of (items || [])) {
+        const key = new Date(e.ts).toISOString().slice(0,10);
+        if (!byDay.has(key)) byDay.set(key, {});
+        const bucket = byDay.get(key);
+        bucket[e.metric] = (bucket[e.metric] || 0) + 1;
+      }
+      return byDay; // Map(date -> {metric:count})
+    }
+
+    function seriesForMetric(metricId, days, byDay) {
+      const vals = [];
+      for (const d of days) {
+        const bucket = byDay.get(d) || {};
+        vals.push(bucket[metricId] || 0);
+      }
+      return vals;
+    }
+
+    function sparklineSVG(values, w = 180, h = 28) {
+      if (!values.length) return "";
+      const max = Math.max(...values), min = Math.min(...values);
+      const sx = (i) => (values.length === 1) ? 1 : (i / (values.length - 1)) * (w - 2) + 1;
+      const sy = (v) => {
+        if (max === min) return h / 2; // flat line when constant
+        return h - 1 - ((v - min) / (max - min)) * (h - 2);
+      };
+      const pts = values.map((v,i)=>`${sx(i)},${sy(v)}`).join(" ");
+      const last = values[values.length - 1];
+      return `<svg viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="currentColor" stroke-width="2" points="${pts}"/><circle cx="${sx(values.length-1)}" cy="${sy(last)}" r="2" /></svg>`;
+    }
+
+    const historyRangeEl = document.getElementById('historyRange');
+    const historyListEl = document.getElementById('historyList');
+
+    async function loadHistory() {
+      const days = parseInt(historyRangeEl.value || '30', 10);
+      const now = new Date();
+      const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days + 1);
+      const params = new URLSearchParams({ from: from.toISOString(), to: now.toISOString() });
+      const res = await fetch(`${apiBase}/entries?${params.toString()}`);
+      if (!res.ok) { historyListEl.innerHTML = "<div class='muted'>Failed to load history.</div>"; return; }
+      const data = await res.json();
+      renderHistory(data.items || [], days);
+    }
+
+    function renderHistory(items, daysBack) {
+      const days = daysArray(daysBack);
+      const byDay = rollupCountsByDay(items);
+
+      // Compute totals per metric over the window
+      const totals = new Map();
+      for (const e of (items || [])) {
+        totals.set(e.metric, (totals.get(e.metric) || 0) + 1);
+      }
+
+      // Build list of metrics from CONFIG, excluding purely textual ones if desired
+      const metricIds = (CONFIG.metrics || []).map(m => m.id);
+      // Sort by activity (total desc) and take top 8 to keep UI compact
+      const top = metricIds
+        .filter(id => totals.get(id) > 0)
+        .sort((a,b) => (totals.get(b)||0) - (totals.get(a)||0))
+        .slice(0, 8);
+
+      historyListEl.innerHTML = '';
+      if (top.length === 0) {
+        historyListEl.innerHTML = "<div class='muted'>No history for this period.</div>";
+        return;
+      }
+
+      for (const id of top) {
+        const def = metricMap.get(id) || { label: id };
+        const series = seriesForMetric(id, days, byDay);
+        const last = series.length ? series[series.length - 1] : 0;
+        const row = document.createElement('div');
+        row.className = 'history-row';
+
+        const name = document.createElement('h3');
+        name.textContent = def.label || id;
+        row.appendChild(name);
+
+        const spark = document.createElement('div');
+        spark.className = 'spark';
+        spark.innerHTML = sparklineSVG(series);
+        row.appendChild(spark);
+
+        const lastDiv = document.createElement('div');
+        lastDiv.className = 'mono';
+        lastDiv.textContent = String(last);
+        row.appendChild(lastDiv);
+
+        historyListEl.appendChild(row);
+      }
+    }
+
+    // Hook range changes
+    historyRangeEl.addEventListener('change', loadHistory);
 
     function loadPending() {
       try {
@@ -402,6 +532,7 @@
     flushBtn.addEventListener("click", flushPending);
 
     refresh();
+    loadHistory();
   </script>
 </body>
 </html>
