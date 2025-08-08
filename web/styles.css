@@ -30,6 +30,8 @@
   --shadow-2: 0 2px 10px rgba(0,0,0,0.08);
 
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px;
+
+  color-scheme: light dark;
 }
 
 /* Manual dark override via data-theme */
@@ -49,6 +51,29 @@ html[data-theme="dark"] {
   --accent-text: #cfe1ff;
 
   --focus: #60a5fa;
+}
+
+/* Manual light override via data-theme */
+html[data-theme="light"] {
+  /* mirror your :root light tokens to force light even if the OS prefers dark */
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #fafafa;
+  --border: #e6e6eb;
+  --text: #0f1720;
+  --text-muted: #5f6b7a;
+
+  --brand: #3b82f6;
+  --brand-hover: #2563eb;
+
+  --accent-bg: #eef4ff;
+  --accent-border: #d6e3ff;
+  --accent-text: #0b3b8c;
+
+  --focus: #2563eb;
+
+  /* tell Safari/iOS to render form controls, scrollbars, etc. in light */
+  color-scheme: light;
 }
 
 /* System dark preference (fallback/auto) */
