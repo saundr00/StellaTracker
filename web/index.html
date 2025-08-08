@@ -6,69 +6,7 @@
   <title>StellaTracker</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#ffffff">
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 0; background: #fafafa; color: #111; }
-    header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #eee; padding: 12px 16px; display:flex; gap:12px; align-items:center; }
-    header img { width: 28px; height: 28px; border-radius: 6px; background:#ddd; }
-    h1 { font-size: 18px; margin: 0; }
-    main { padding: 16px; display:grid; gap: 24px; max-width: 900px; margin: 0 auto; }
-    .card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    label { font-size: 14px; display:block; margin: 6px 0; }
-    input, select, textarea, button { font-size: 16px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; background:#fff;}
-    button { cursor: pointer; border-color: #ccc; }
-    .grid { display:grid; gap:8px; }
-    .muted { color:#666; font-size:12px; }
-    .entries { display:grid; gap:8px; }
-    .entry { padding:10px; border:1px solid #eee; border-radius:8px; background:#fff; }
-    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#efefef; margin-right:6px; }
-    .flex { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
-    .space { height:4px; }
-    .danger { color:#b00020; }
-    .iconbtn { border: none; background: transparent; cursor: pointer; font-size: 16px; padding: 4px 6px; }
-    .preset { padding:8px 10px; border:1px solid #ddd; border-radius:999px; background:#f7f7f7; }
-    .history-row { display:grid; grid-template-columns: 200px 1fr 80px; gap:8px; align-items:center; }
-    .history-row h3 { margin:0; font-size:14px; font-weight:600; }
-    .spark { color:#333; }
-    .spark svg { display:block; width:100%; height:28px; }
-    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; text-align:right; }
-    .subhead { font-size: 13px; font-weight: 600; color:#333; margin:8px 0 4px; }
-    .rule { border-top:1px solid #eee; margin:12px 0; }
-    .softcard { background:#fafafa; border:1px solid #eee; border-radius:8px; padding:8px; }
-
-    /* Headings get a subtle divider */
-    .card h2 { border-bottom: 1px solid #eee; padding-bottom: 6px; margin-bottom: 10px; }
-
-    /* Entries: alternating rows for readability */
-    .entries .entry:nth-child(even) { background:#fbfbfb; }
-
-    /* Card hover depth */
-    .card { transition: box-shadow 120ms ease-in-out; }
-    .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-
-    /* Buttons: unified style */
-    .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:8px 12px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer; transition: background 120ms, border-color 120ms, box-shadow 120ms; }
-    .btn:hover { background:#f7f7f7; border-color:#bbb; }
-    .btn:active { box-shadow: inset 0 1px 2px rgba(0,0,0,0.08); }
-    .btn-primary { background:#0b5fff; color:#fff; border-color:#0b5fff; }
-    .btn-primary:hover { background:#0a52db; border-color:#0a52db; }
-    .btn-accent { background:#f3f6ff; border-color:#c7d2fe; color:#1f3a93; }
-    .btn-accent:hover { background:#e9efff; }
-
-    /* History row hover and balance */
-    .history-row { padding:4px; border-radius:6px; }
-    .history-row:hover { background:#f8f9fa; }
-    .spark svg { height:26px; }
-    .mono { font-size: 13px; }
-
-    /* Mobile optimizations */
-    @media (max-width: 600px) {
-      .row { grid-template-columns: 1fr; }
-      .history-row { grid-template-columns: 1fr; gap:4px; }
-      .history-row h3 { font-size: 13px; }
-      .spark svg { height:24px; }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
