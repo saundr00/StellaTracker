@@ -10,17 +10,17 @@
 </head>
 <body>
   <header>
-    <img alt="logo" />
+    <img src="/icon-192.png" alt="StellaTracker logo" class="logo" />
     <h1>StellaTracker</h1>
   </header>
   <main>
     <section class="card">
-      <h2 style="margin:0 0 8px 0;">Quick Presets</h2>
+      <h2 class="card-title">Quick Presets</h2>
       <div class="flex" id="presets"></div>
     </section>
 
     <section class="card">
-      <h2 style="margin:0 0 8px 0;">Add Log Entry</h2>
+      <h2 class="card-title">Add Log Entry</h2>
       <div class="grid">
         <div class="row">
           <div>
@@ -63,7 +63,7 @@
             <label for="ts">Time</label>
             <input id="ts" type="datetime-local" />
           </div>
-          <div style="display:flex; align-items:flex-end; gap:8px;">
+          <div class="actions">
             <button id="saveBtn" class="btn btn-primary">Save Entry</button>
             <button id="flushBtn" class="btn">Sync Pending</button>
           </div>
@@ -79,34 +79,37 @@
       <div class="toolbar-right">
         <button id="refreshBtn" class="btn">Refresh</button>
         <button id="exportBtn" class="btn btn-accent">Export CSV</button>
-        <button id="themeToggle" class="btn" title="Toggle light/dark">🌙</button>
+        <button id="themeToggle" class="btn" title="Toggle light/dark" aria-label="Toggle theme">🌙</button>
       </div>
     </section>
 
     <section class="card">
       <div class="flex" style="justify-content:space-between; align-items:center;">
-        <h2 style="margin:0;">History</h2>
-        <select id="historyRange">
+        <h2 class="card-title">History</h2>
+        <div class="control"><select id="historyRange">
           <option value="7">Last 7 days</option>
           <option value="30" selected>Last 30 days</option>
           <option value="90">Last 90 days</option>
-        </select>
+        </select></div>
       </div>
       <div id="historyList" class="grid"></div>
+      <div id="historyEmpty" class="empty" style="display:none;">No history in this range yet.</div>
     </section>
 
     <section class="card">
       <div class="flex" style="justify-content:space-between;">
-        <h2 style="margin:0;">Entry Summary</h2>
+        <h2 class="card-title">Entry Summary</h2>
       </div>
       <div id="todayCounts" class="grid muted"></div>
+      <div id="summaryEmpty" class="empty" style="display:none;">No entries yet today.</div>
     </section>
 
     <section class="card">
       <div class="flex" style="justify-content:space-between;">
-        <h2 id="entriesHeader" style="margin:0;">Entry Details (last 30 days)</h2>
+        <h2 id="entriesHeader" class="card-title">Entry Details (last 30 days)</h2>
       </div>
       <div id="entries" class="entries"></div>
+      <div id="entriesEmpty" class="empty" style="display:none;">No entries to show.</div>
     </section>
   </main>
 
