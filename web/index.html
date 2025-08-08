@@ -140,29 +140,13 @@
     let metricMap = new Map();
 
     async function loadConfig() {
-      // Try relative first (works when the app is hosted under a subpath),
-      // then fall back to absolute root. Provide verbose diagnostics.
-      const candidates = [
-        './config.json',
-        '/config.json'
-      ];
-
-      let lastError = null;
-      for (const url of candidates) {
-        try {
-          const res = await fetch(url, { cache: 'no-store' });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          CONFIG = await res.json();
-          console.info('[config] Loaded', url);
-          break;
-        } catch (err) {
-          console.warn('[config] Failed to load', url, err);
-          lastError = err;
-        }
-      }
-
-      if (!CONFIG) {
-        console.warn('[config] Falling back to built-in defaults because no config.json was found.', lastError);
+      try {
+        const res = await fetch('./config.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        CONFIG = await res.json();
+        console.info('[config] Loaded ./config.json');
+      } catch (err) {
+        console.warn('[config] Could not load ./config.json; using built-in defaults.', err);
         CONFIG = {
           metrics: [
             { id: 'stand_assisted', label: 'Stand (Assisted)' },
