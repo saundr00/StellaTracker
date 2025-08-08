@@ -1,115 +1,127 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StellaTracker</title>
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#ffffff">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header>
-    <img src="/icon-192.png" alt="StellaTracker logo" class="logo" />
-    <h1>StellaTracker</h1>
-  </header>
-  <main>
-    <section class="card">
-      <h2 class="card-title">Quick Presets</h2>
-      <div class="flex" id="presets"></div>
-    </section>
+  <head>
+    <meta charset="utf-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
+    <meta name="theme-color" content="#ffffff">
+    <title>StellaTracker</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <img src="/icon-192.png" alt="StellaTracker logo" class="logo">
+      <h1>StellaTracker</h1>
+    </header>
 
-    <section class="card">
-      <h2 class="card-title">Add Log Entry</h2>
-      <div class="grid">
+    <main>
+      <!-- Quick Presets -->
+      <section class="card">
+        <h2 class="card-title">Quick Presets</h2>
+        <div class="flex" id="presets"></div>
+      </section>
+
+      <!-- Add Log Entry -->
+      <section class="card">
+        <h2 class="card-title">Add Log Entry</h2>
         <div class="row">
           <div>
-            <label for="metric">Metric</label>
+            <label>Metric</label>
             <select id="metric"></select>
           </div>
           <div>
-            <label for="value">Value</label>
-            <input id="value" placeholder="e.g., duration 10min, dose 250mg, distance 0.1mi…" />
+            <label>Value (optional)</label>
+            <input id="value" type="text" placeholder="">
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label>Notes (optional)</label>
+            <textarea id="note" rows="2" placeholder=""></textarea>
+          </div>
+          <div>
+            <label>Timestamp</label>
+            <input id="ts" type="datetime-local">
           </div>
         </div>
 
-        <div class="row" id="accidentRow" style="display:none;">
+        <div id="accidentRow" class="row" style="display:none; margin-top:8px;">
           <div>
-            <label for="location">Accident Location</label>
+            <label>Accident Location</label>
             <select id="location">
-              <option value="">(none)</option>
-              <option value="bed">Bed</option>
-              <option value="couch">Couch</option>
-              <option value="deck">Deck</option>
-              <option value="yard">Yard</option>
-              <option value="other">Other</option>
+              <option value="">—</option>
+              <option value="inside">Inside</option>
+              <option value="outside">Outside</option>
+              <option value="crate">Crate</option>
             </select>
           </div>
           <div>
-            <label for="severity">Severity/Size (optional)</label>
-            <input id="severity" placeholder="e.g., small/medium/large" />
+            <label>Accident Size</label>
+            <select id="severity">
+              <option value="">—</option>
+              <option value="small">Small</option>
+              <option value="medium">Medium</option>
+              <option value="large">Large</option>
+            </select>
           </div>
         </div>
 
-        <div id="energyRow" style="display:none;">
-          <label for="energy">Energy Level</label>
-          <input id="energy" type="range" min="0" max="5" step="1" value="3">
-        </div>
-
-        <label for="note">Note (optional)</label>
-        <textarea id="note" rows="2" placeholder="Short note…"></textarea>
-        <div class="row">
+        <div id="energyRow" class="row" style="display:none; margin-top:8px;">
           <div>
-            <label for="ts">Time</label>
-            <input id="ts" type="datetime-local" />
-          </div>
-          <div class="actions">
-            <button id="saveBtn" class="btn btn-primary">Save Entry</button>
-            <button id="flushBtn" class="btn">Sync Pending</button>
+            <label>Energy (0–5)</label>
+            <input id="energy" type="range" min="0" max="5" step="1" value="3">
           </div>
         </div>
-        <div class="muted">Works offline. If the network fails, entries are queued and will sync when you tap <b>Sync Pending</b> or come back online.</div>
-      </div>
-    </section>
 
-    <section class="card toolbar">
-      <div class="toolbar-right">
-        <button id="refreshBtn" class="btn">Refresh</button>
-        <button id="exportBtn" class="btn btn-accent">Export CSV</button>
-        <button id="themeToggle" class="btn" title="Toggle light/dark" aria-label="Toggle theme">🌙</button>
-      </div>
-    </section>
+        <div class="actions" style="margin-top:12px;">
+          <button id="saveBtn" class="btn btn-primary">Save Entry</button>
+          <button id="flushBtn" class="btn">Sync Pending</button>
+        </div>
+      </section>
 
-    <section class="card">
-      <div class="flex" style="justify-content:space-between; align-items:center;">
-        <h2 class="card-title">History</h2>
-        <div class="control"><select id="historyRange">
-          <option value="7">Last 7 days</option>
-          <option value="30" selected>Last 30 days</option>
-          <option value="90">Last 90 days</option>
-        </select></div>
-      </div>
-      <div id="historyList" class="grid"></div>
-      <div id="historyEmpty" class="empty" style="display:none;">No history in this range yet.</div>
-    </section>
+      <!-- Toolbar (view controls / theme) -->
+      <section class="card toolbar">
+        <div class="toolbar-left">
+          <div class="brand-subtitle">Care Logs & Trends</div>
+        </div>
+        <div class="toolbar-right">
+          <button id="refreshBtn" class="btn">Refresh</button>
+          <button id="exportBtn" class="btn btn-accent">Export CSV</button>
+          <button id="themeToggle" class="btn" title="Toggle light/dark" aria-label="Toggle theme">🌙</button>
+        </div>
+      </section>
 
-    <section class="card">
-      <div class="flex" style="justify-content:space-between;">
+      <!-- History -->
+      <section class="card">
+        <div class="flex" style="justify-content:space-between; align-items:center;">
+          <h2 class="card-title" style="margin:0;">History</h2>
+          <div class="control">
+            <select id="historyRange">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </div>
+        </div>
+        <div id="historyList" class="grid"></div>
+        <div id="historyEmpty" class="empty" style="display:none;">No history in this range yet.</div>
+      </section>
+
+      <!-- Entry Summary -->
+      <section class="card">
         <h2 class="card-title">Entry Summary</h2>
-      </div>
-      <div id="todayCounts" class="grid muted"></div>
-      <div id="summaryEmpty" class="empty" style="display:none;">No entries yet today.</div>
-    </section>
+        <div id="todayCounts" class="grid muted"></div>
+        <div id="summaryEmpty" class="empty" style="display:none;">No entries yet today.</div>
+      </section>
 
-    <section class="card">
-      <div class="flex" style="justify-content:space-between;">
+      <!-- Entry Details -->
+      <section class="card">
         <h2 id="entriesHeader" class="card-title">Entry Details (last 30 days)</h2>
-      </div>
-      <div id="entries" class="entries"></div>
-      <div id="entriesEmpty" class="empty" style="display:none;">No entries to show.</div>
-    </section>
-  </main>
+        <div id="entries" class="entries"></div>
+        <div id="entriesEmpty" class="empty" style="display:none;">No entries to show.</div>
+      </section>
+    </main>
 
-  <script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
