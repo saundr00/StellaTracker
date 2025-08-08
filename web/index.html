@@ -121,17 +121,15 @@
 
     <section class="card">
       <div class="flex" style="justify-content:space-between;">
-        <h2 style="margin:0;">Entries</h2>
+        <h2 style="margin:0;">Entry Summary</h2>
       </div>
+      <div id="todayCounts" class="grid muted"></div>
+    </section>
 
-      <div class="softcard">
-        <div class="subhead">Summary (today)</div>
-        <div id="todayCounts" class="grid muted"></div>
+    <section class="card">
+      <div class="flex" style="justify-content:space-between;">
+        <h2 id="entriesHeader" style="margin:0;">Entry Details (last 30 days)</h2>
       </div>
-
-      <div class="rule"></div>
-
-      <div class="subhead" id="detailHeader">Detail (last 30 days)</div>
       <div id="entries" class="entries"></div>
     </section>
   </main>
