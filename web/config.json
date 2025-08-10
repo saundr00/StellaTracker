@@ -5,6 +5,7 @@
     { "id": "drink", "label": "Drink Water" },
     { "id": "eat", "label": "Eat" },
     { "id": "panting", "label": "Panting Episode" },
+    { "id": "adequan", "label": "Adequan Given" },
     { "id": "tylenol", "label": "Tylenol Given" },
     { "id": "bm_normal", "label": "BM (Normal)" },
     { "id": "bm_loose", "label": "BM (Loose)" },
